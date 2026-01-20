@@ -1,0 +1,21 @@
+{
+  "name": "update_customer_sales_region",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "format": "prettier \"**/*.sql\" --write",
+    "format:check": "prettier \"**/*.sql\" --check"
+
+    
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "devDependencies": {
+    "prettier": "^3.8.0",
+    "prettier-plugin-sql": "^0.19.2"
+  }
+}
