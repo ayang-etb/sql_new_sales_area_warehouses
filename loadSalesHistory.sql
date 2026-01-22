@@ -178,8 +178,10 @@ SELECT
     sor.Release,
     acus.FcstWhse AS 'Warehouse',
     --EntryDate,
-	@DateStart as MovementDate,
     --sor.TrnDate as MovementDate,
+    --@DateStart as MovementDate,
+    --Alex added below line for the entry date creation and commented out the line above
+    DATEFROMPARTS(YEAR(sor.TrnDate), MONTH(sor.TrnDate), 1) AS MovementDate,
     999 AS EntryNumber,
     'L' AS AdjustType,
 	CASE 
@@ -205,8 +207,9 @@ SELECT
   GROUP BY sor.StockCode,
            sor.Version,
            sor.Release,
-           acus.FcstWhse
+           acus.FcstWhse,
            --sor.TrnDate
+            DATEFROMPARTS(YEAR(sor.TrnDate), MONTH(sor.TrnDatee), 1)
 
 --Add records to InvWarehouse where these do not exist
 --Extract unique StockCode instances for each customer warehouse
