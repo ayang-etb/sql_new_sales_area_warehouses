@@ -207,9 +207,9 @@ SELECT
   GROUP BY sor.StockCode,
            sor.Version,
            sor.Release,
-           acus.FcstWhse,
+           acus.FcstWhse
            --sor.TrnDate
-            DATEFROMPARTS(YEAR(sor.TrnDate), MONTH(sor.TrnDatee), 1)
+          
 
 --Add records to InvWarehouse where these do not exist
 --Extract unique StockCode instances for each customer warehouse
