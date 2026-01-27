@@ -1,6 +1,6 @@
 
 -- connect to test db
-USE TEST
+USE ETB_TEST
 
 --create a temporary table to hold data related to the warehouse and Area change by customer number
 CREATE TABLE dbo.TempChangeRegion (
@@ -64,10 +64,11 @@ VALUES
 
 (137650,'PEYTON''S INC.','FOOD','Change from R6 to R2','R6','R2','z06PEYTON','z02PEYTON'),
 (143526,'MEIJER INC.','FOOD','Change from R6 to R2','R6','R2','z06MEIJER','z02MEIJER'),
-(137748,'L&R DISTRIBUTORS, INC.','FOOD','Change from R1 to R2','R1','R2','z01OTHER','z02OTHER'),
 (135525,'KEEFE SUPPLY COMPANY','WHOLESALER','Change from R6 to R2','R6','R2','z06OTHER','z02OTHER'),
 (106268,'BIG LOTS STORES, INC.','VALUE','Change from R6 to R2','R6','R2','z06BIGLOTS','z02BIGLOTS'),
+(102725,'ASSOCIATED FOOD STORES','','','R1','R2','z01OTHER','z02OTHER'),
 
+(137748,'L&R DISTRIBUTORS, INC.','FOOD','Change from R1 to R6','R1','R6','z01OTHER','z06OTHER'),
 (116657,'AMERISOURCE','DRUG WHOLESALER','Change from R1 to R6','R1','R6','z01OTHER','z06OTHER'),
 (141510,'MCKESSON','DRUG WHOLESALER','Change from R2 to R6','R2','R6','z02OTHER','z06OTHER'),
 (143455,'MEDLINE INDUSTRIES','','Change from R4 to R6','R4','R6','z04OTHER','z06OTHER'),
@@ -76,6 +77,7 @@ VALUES
 (148725,'NC MUTUAL WHLSE DRUG CO','DRUG WHOLESALER','Change from R2 to R6','R2','R6','z02OTHER','z06OTHER'),
 (161125,'SMITH WHOLESALE DRUG','DRUG WHOLESALER','Change from R2 to R6','R2','R6','z02OTHER','z06OTHER'),
 (119142,'ENDURANCE REHABILITATION','---','Change from R4 to R6','R4','R6','z04OTHER','z06OTHER')
+
 
 
   
