@@ -136,7 +136,7 @@ Comment)
     --EntryDate,
 	--@DateStart AS EntryDate,
     --Alex added below line for the entry date creation and commented out the line above 
-    DATEFROMPARTS(YEAR(imov.EntryDate), MONTH(imov.EntryDate), 1) AS EntryDate,
+    DATEFROMPARTS(YEAR(imov.EntryDate), MONTH(imov.EntryDate), 1) AS MovementDate,
     800 AS EntryNumber,
     'A' AS AdjustType,
     SUM(TrnQty) AS Quantity,
