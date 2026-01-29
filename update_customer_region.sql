@@ -90,6 +90,16 @@ JOIN dbo.TempChangeRegion t
   ON c.Customer = t.Customer
 
 
+--update the "ArCustomer+" table "FcstWhse" field
+
+UPDATE c
+SET c.FcstWhse = t.NEW_Fcast_Warehouse
+FROM dbo.[ArCustomer+] c
+JOIN dbo.[TempChangeRegion] t
+  ON c.Customer = t.Customer
+
+
+
 --create tempStockCode table, Get all the stockcode related to the warehouse change and put them in a TempStockCode table
 
 SELECT iop.*

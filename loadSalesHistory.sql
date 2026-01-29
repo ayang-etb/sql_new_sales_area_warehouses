@@ -75,7 +75,8 @@ CREATE TABLE #FcWarehouse (
 
 --	Load Sales at Co Level from InvMovements and load them into IopSalesAdjust
 --	EntryNumber = 800 (MovementType 'S')
-INSERT INTO dbo.IopSalesAdjust (StockCode
+INSERT INTO dbo.IopSalesAdjust (
+  StockCode
 , Version
 , Release
 , Warehouse
@@ -136,7 +137,7 @@ Comment)
     --EntryDate,
 	--@DateStart AS EntryDate,
     --Alex added below line for the entry date creation and commented out the line above 
-    DATEFROMPARTS(YEAR(imov.EntryDate), MONTH(imov.EntryDate), 1) AS MovementDate,
+    DATEFROMPARTS(YEAR(imov.EntryDate), MONTH(imov.EntryDate), 1) AS EntryDate,
     800 AS EntryNumber,
     'A' AS AdjustType,
     SUM(TrnQty) AS Quantity,
@@ -202,13 +203,14 @@ SELECT
   FROM dbo.SorLostSales sor
   JOIN dbo.[ArCustomer+] AS acus (NOLOCK)
     ON sor.Customer = acus.Customer
-  AND sor.TrnDate BETWEEN @DateStart AND @DateEnd
   WHERE acus.FcstWhse IS NOT NULL
+  AND sor.TrnDate BETWEEN @DateStart AND @DateEnd
   GROUP BY sor.StockCode,
            sor.Version,
            sor.Release,
-           acus.FcstWhse
+           acus.FcstWhse,
            --sor.TrnDate
+           DATEFROMPARTS(YEAR(sor.TrnDate), MONTH(sor.TrnDate), 1)
           
 
 --Add records to InvWarehouse where these do not exist
