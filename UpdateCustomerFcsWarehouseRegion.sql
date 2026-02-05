@@ -3,7 +3,7 @@
 USE ETB_TEST
 
 --create a temporary table to hold data related to the warehouse and Area change by customer number
-CREATE TABLE dbo.TempChangeRegion (
+DECLARE @TempChangeRegion TABLE (
   Customer INT PRIMARY KEY,
   Name VARCHAR(255),
   CustomerClass VARCHAR(255),
@@ -16,7 +16,7 @@ CREATE TABLE dbo.TempChangeRegion (
 
 --insert the customer numbers and their new Area values into the temporary table
 INSERT INTO
-  dbo.TempChangeRegion (
+   @TempChangeRegion (
     Customer,
     Name,
     CustomerClass,
@@ -76,18 +76,16 @@ VALUES
 (147957,'NAVAJO MANUFACTURING CO.','FOOD','Change from R2 to R6','R2','R6','z02OTHER','z06OTHER'),
 (148725,'NC MUTUAL WHLSE DRUG CO','DRUG WHOLESALER','Change from R2 to R6','R2','R6','z02OTHER','z06OTHER'),
 (161125,'SMITH WHOLESALE DRUG','DRUG WHOLESALER','Change from R2 to R6','R2','R6','z02OTHER','z06OTHER'),
-(119142,'ENDURANCE REHABILITATION','---','Change from R4 to R6','R4','R6','z04OTHER','z06OTHER')
+(119142,'ENDURANCE REHABILITATION','---','Change from R4 to R6','R4','R6','z04OTHER','z06OTHER'),
 
-
-
-  
---update the "ArCustomer" table  "Area" field
-
-UPDATE c
-SET c.Area = t.NEW_AREA
-FROM dbo.ArCustomer c
-JOIN dbo.TempChangeRegion t
-  ON c.Customer = t.Customer
+-- do not update the following customers' area, they already exist in the ArCustomer table with the correct region 
+(880925,'DELTA GLOBAL GENERAL TRADING L.L.C','','MIDDLE EAST','95','95','','z95OTHER'),
+(140935,'LOTUS LIGHT ENTERPRISES, INC.','','REGION 2 - KERRY TOTTEN','R2','R2','','z02OTHER'),
+(812925,'BULANDI DISTRBUTORS FZCO','','MIDDLE EAST','95','95','','z95OTHER'),
+(113334,'DJ''S BEAUTY SUPPLY','','REGION 1 - JOE VENEZIA','R1','R1','','z01OTHER'),
+(123232,'HABIBI BEAUTY SUPPLY','','REGION 1 - JOE VENEZIA','R1','R1','','z01OTHER'),
+(113333,'DJ''S AND FRIENDS INC.','','REGION 1 - JOE VENEZIA','R1','R1','','z01OTHER'),
+(113335,'3D BEAUTY SUPPLY INC.','','REGION 1 - JOE VENEZIA','R1','R1','','z01OTHER')
 
 
 --update the "ArCustomer+" table "FcstWhse" field
@@ -95,41 +93,14 @@ JOIN dbo.TempChangeRegion t
 UPDATE c
 SET c.FcstWhse = t.NEW_Fcast_Warehouse
 FROM dbo.[ArCustomer+] c
-JOIN dbo.[TempChangeRegion] t
+JOIN @TempChangeRegion t
   ON c.Customer = t.Customer
 
 
+--update the "ArCustomer" table  "Area" field
 
---create tempStockCode table, Get all the stockcode related to the warehouse change and put them in a TempStockCode table
-
-SELECT iop.*
-INTO dbo.TempIOPwareHouse
-FROM dbo.IopWarehouse iop
-WHERE iop.Warehouse IN (Select DISTINCT OLD_Fcast_Warehouse FROM TempChangeRegion )
-
---Change all the related stockcode's old warehouse to the new warehouse.
---After this, all the records in the TempIopWarehouse table are the new warehouses' stockcode to be insert back to the IopWarehouse table
-
-UPDATE tiop SET tiop.Warehouse = tr.NEW_Fcast_Warehouse  FROM dbo.TempIOPwareHouse tiop JOIN dbo.TempChangeRegion tr ON tiop.Warehouse = tr.OLD_Fcast_Warehouse 
-
---Insert all records from the TempIopWarehouse table to the IopWarehouse table
-
-INSERT INTO dbo.IopWarehouse SELECT * FROM dbo.TempIOPwareHouse
-
---create TempInvWarehouse table, Get all the stock code related to warehouse change and put them in the TempInvWarehouse table
-
-SELECT inv.*
-INTO dbo.TempInvWarehouse
-FROM dbo.InvWarehouse inv
-WHERE inv.Warehouse IN (Select DISTINCT OLD_Fcast_Warehouse FROM dbo.TempChangeRegion )
-
---Change all the related stockcode's old warehouse to the new warehouse TempInvWarehouse.
---After this, all the records in the TempInvWarehouse table has the new warehouses' stockcode 
---to be insert back to the InvWarehouse TABLE
-
-UPDATE tiw SET tiw.Warehouse = tr.NEW_Fcast_Warehouse  FROM dbo.TempInvWarehouse tiw JOIN dbo.TempChangeRegion tr ON tiw.Warehouse = tr.OLD_Fcast_Warehouse 
-
---Insert all records from the TempInvWarehouse table to the InvWarehouse table
-
-INSERT INTO dbo.InvWarehouse SELECT * FROM dbo.TempInvWarehouse
-
+--UPDATE c
+--SET c.Area = t.NEW_AREA
+--FROM dbo.ArCustomer c
+--JOIN TempChangeRegion t
+--  ON c.Customer = t.Customer

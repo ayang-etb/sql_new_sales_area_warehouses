@@ -1,4 +1,4 @@
-USE [ETB]
+USE [ETB_TEST]
 GO
 /****** Object:  StoredProcedure [dbo].[uspLoadSalesHistory]    Script Date: 1/21/2026 9:20:41 AM ******/
 SET ANSI_NULLS ON
@@ -7,9 +7,6 @@ SET QUOTED_IDENTIFIER ON
 GO
 
 
-
-ALTER PROCEDURE [dbo].[uspLoadSalesHistory]
-AS 
 /**********************************************************************************************************
 ****COFFE MUG****
 
@@ -49,7 +46,7 @@ This script loads sales into dummy warehouses
 --	If there is a need to reload the history completely due to changes in customer mapping, then the '- 1' in the calculation 
 --	of @DateStart should be changed to '- 36' to replace all the history within a 3 year window.
 
-DECLARE @DateStart date = DATEADD(MONTH, DATEDIFF(MONTH, '19000101', GETDATE()) - 1, '19000101'),
+DECLARE @DateStart date = DATEADD(MONTH, DATEDIFF(MONTH, '19000101', GETDATE()) - 36, '19000101'),
         @DateEnd date = DATEADD(D, -1, DATEADD(MONTH, DATEDIFF(MONTH, '19000101', GETDATE()), '19000101'))
 
 --SELECT
@@ -59,14 +56,20 @@ DECLARE @DateStart date = DATEADD(MONTH, DATEDIFF(MONTH, '19000101', GETDATE()) 
 --	1b. Clear out all previous history. This is held in IopSalesAdjust with 
 --	EntryNumber = 800
 DELETE FROM dbo.IopSalesAdjust
-WHERE EntryNumber IN (800)
+WHERE EntryNumber IN (800,999)
   AND MovementDate BETWEEN @DateStart AND @DateEnd
+
+/*
+DELETE FROM dbo.IopSalesAdjust
+WHERE EntryNumber NOT IN (800,999)
+  AND MovementDate BETWEEN @DateStart AND @DateEnd
+*/
 
 CREATE TABLE #FcWarehouse (
   StockCode varchar(30) COLLATE DATABASE_DEFAULT,
   Warehouse varchar(10) COLLATE DATABASE_DEFAULT,
   ItemCount int,
-  UnitCost decimal(15, 5)
+  UnitCost decimal(15, 5),
   PRIMARY KEY
   (
   StockCode, Warehouse
@@ -86,16 +89,17 @@ INSERT INTO dbo.IopSalesAdjust (
 , Quantity
 , SalesValue
 , CostValue
-, Comment)
+, Comment
+)
   SELECT
     imas.StockCode,
     imas.Version,
     imas.Release,
     'zz-TotalCo' AS 'Warehouse',
-	--EntryDate,
+	  --EntryDate,
     --@DateStart as EntryDate,
     --Alex added below line for the entry date creation and commented out the line above 
-     DATEFROMPARTS(YEAR(imov.EntryDate), MONTH(imov.EntryDate), 1) AS EntryDate,
+    DATEFROMPARTS(YEAR(imov.EntryDate), MONTH(imov.EntryDate), 1) AS EntryDate,
     800 AS EntryNumber,
     'A' AS AdjustType,
     SUM(TrnQty) AS Quantity,
@@ -118,7 +122,8 @@ INSERT INTO dbo.IopSalesAdjust (
 
 --	Load Sales at Dummy Forecast Wh Level from InvMovements and load them into IopSalesAdjust
 --	EntryNumber = 800 (MovementType 'S')
-INSERT INTO dbo.IopSalesAdjust (StockCode,
+INSERT INTO dbo.IopSalesAdjust (
+StockCode,
 Version,
 Release,
 Warehouse,
@@ -128,14 +133,15 @@ AdjustType,
 Quantity,
 SalesValue,
 CostValue,
-Comment)
+Comment
+)
   SELECT
     imov.StockCode,
     imov.Version,
     imov.Release,
     acus.FcstWhse AS 'Warehouse',
     --EntryDate,
-	--@DateStart AS EntryDate,
+	  --@DateStart AS EntryDate,
     --Alex added below line for the entry date creation and commented out the line above 
     DATEFROMPARTS(YEAR(imov.EntryDate), MONTH(imov.EntryDate), 1) AS EntryDate,
     800 AS EntryNumber,
@@ -145,7 +151,7 @@ Comment)
     SUM(CostValue) AS CostValue,
     'Sales' AS Comment
   FROM dbo.InvMovements AS imov WITH (NOLOCK)
-  JOIN dbo.[ArCustomer+] AS acus (NOLOCK)
+  JOIN dbo.[ArCustomer+] AS acus WITH (NOLOCK)
     ON imov.Customer = acus.Customer
   WHERE MovementType = 'S'
   --AND EntryDate > @DateStart
@@ -157,7 +163,7 @@ Comment)
            --,
            --imov.EntryDate
            --ALEX added below line
-        DATEFROMPARTS(YEAR(imov.EntryDate), MONTH(imov.EntryDate), 1)
+           DATEFROMPARTS(YEAR(imov.EntryDate), MONTH(imov.EntryDate), 1)
 
 --	Load Lost Sales at Dummy Forecast Wh Level from SorLostSales and load them into IopSalesAdjust
 INSERT INTO dbo.IopSalesAdjust (
@@ -226,8 +232,7 @@ INSERT INTO #FcWarehouse (StockCode
   WHERE Warehouse LIKE 'z%'
   GROUP BY StockCode,
            Warehouse
-  ORDER BY StockCode
-  , Warehouse
+  --ORDER BY StockCode, Warehouse
 
 -- Add missing records to InvWarehouse
 INSERT INTO dbo.InvWarehouse (StockCode
